@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wonk - Wilboerht Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>Wonk</span>
+                </div>
+                <button class="new-chat-btn" onclick="startNewChat()">
+                    <i class="fas fa-plus"></i>
+                    新对话
+                </button>
+            </div>
+            
+            <div class="chat-history">
+                <div class="history-item active">
+                    <i class="fas fa-message"></i>
+                    <span>当前对话</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user"></i>
+                    <span>用户</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主聊天区域 -->
+        <div class="main-content">
+            <div class="chat-header">
+                <h1>隆重推出 Wonk</h1>
+                <p>Wonk 聊天机器人现已全力登场，感兴趣，感兴趣的朋友，内容研发专力量——您需要关注的现代化对话体验。</p>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <!-- 聊天消息将在这里显示 -->
+            </div>
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <input type="text" id="messageInput" placeholder="询问任何问题..." />
+                    <button class="voice-btn" onclick="toggleVoice()" title="语音输入" aria-label="语音输入">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="send-btn" onclick="sendMessage()" title="发送消息" aria-label="发送消息">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

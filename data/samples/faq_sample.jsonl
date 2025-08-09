@@ -1,0 +1,11 @@
+{"question": "What is Wonk?", "answer": "Wonk is a local FAQ chatbot.", "language": "en", "tags": ["intro"], "source": "manual"}
+{"question": "什么是 Wonk？", "answer": "Wonk 是一个本地运行的FAQ聊天机器人。", "language": "zh", "tags": ["介绍"], "source": "手册"}
+{"question": "How to add FAQs?", "answer": "Use /api/ingest or run import_data.py.", "language": "en"}
+{"question": "如何添加问答？", "answer": "调用 /api/ingest 或运行 import_data.py 导入数据。", "language": "zh"}
+{"question": "Does it work offline?", "answer": "Yes, it works offline using BM25 and optional local embeddings.", "language": "en"}
+{"question": "是否离线运行？", "answer": "是的，默认使用BM25，可选本地向量模型。", "language": "zh"}
+{"question": "Is it free to use?", "answer": "Yes, it's built on open-source components with business-friendly licenses.", "language": "en"}
+{"question": "是否免费？", "answer": "是的，使用对商用友好的开源组件构建。", "language": "zh"}
+{"question": "Which model is used?", "answer": "We recommend intfloat/multilingual-e5-small for bilingual embeddings.", "language": "en"}
+{"question": "使用了哪个模型？", "answer": "建议使用 intfloat/multilingual-e5-small 作为双语语义向量模型。", "language": "zh"}
+

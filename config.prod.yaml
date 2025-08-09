@@ -1,0 +1,118 @@
+# Wonk Chatbot 生产环境配置模板
+# 复制此文件为 config.yaml 并根据需要修改
+
+# 服务配置
+server:
+  host: "0.0.0.0"  # 生产环境监听所有网卡
+  port: 8000
+  workers: 1  # 单进程模式，避免数据库锁冲突
+
+# 数据库配置
+database:
+  path: "data/wonk.db"
+  # 生产环境建议定期备份数据库文件
+
+# 检索配置
+retrieval:
+  # 混合检索权重 (0.0-1.0)
+  # 0.0 = 纯语义检索, 1.0 = 纯关键词检索
+  fuse_alpha: 0.7
+  
+  # 置信度阈值
+  confidence_threshold:
+    high: 0.45  # 高置信度阈值
+    low: 0.25   # 低置信度阈值
+
+# FastEmbed 模型配置
+fastembed:
+  # 中文优先推荐: BAAI/bge-small-zh-v1.5
+  # 英文优先推荐: BAAI/bge-small-en-v1.5  
+  # 多语言推荐: intfloat/multilingual-e5-small
+  model_name: "BAAI/bge-small-zh-v1.5"
+  
+  # 模型缓存目录
+  cache_dir: "models"
+  
+  # 批处理大小（影响内存使用）
+  batch_size: 32
+
+# 日志配置
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d - %(message)s"
+  
+  # 文件日志（生产环境推荐）
+  file:
+    enabled: true
+    path: "logs/wonk.log"
+    max_size: "10MB"
+    backup_count: 5
+    rotation: "daily"
+
+# CORS 配置（生产环境需要收紧）
+cors:
+  # 允许的来源（生产环境请指定具体域名）
+  allow_origins: 
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+    # - "https://yourdomain.com"
+  
+  allow_credentials: true
+  allow_methods: ["GET", "POST", "PUT", "DELETE"]
+  allow_headers: ["*"]
+
+# 安全配置
+security:
+  # 管理员Token（通过环境变量 WONK_ADMIN_TOKEN 设置）
+  # 生产环境必须设置强密码
+  admin_token_required: true
+  
+  # 请求限流（可选，需要额外实现）
+  rate_limit:
+    enabled: false
+    requests_per_minute: 60
+
+# 性能优化
+performance:
+  # 语义向量缓存
+  vector_cache:
+    enabled: true
+    max_size: 10000  # 最大缓存条目数
+    ttl: 3600  # 缓存过期时间（秒）
+  
+  # 查询结果缓存
+  query_cache:
+    enabled: true
+    max_size: 1000
+    ttl: 300
+
+# 监控配置
+monitoring:
+  # 健康检查
+  health_check:
+    enabled: true
+    endpoint: "/health"
+  
+  # 指标收集
+  metrics:
+    enabled: false  # 需要额外实现
+    endpoint: "/metrics"
+
+# 备份配置
+backup:
+  # 自动备份（需要额外实现）
+  enabled: false
+  schedule: "0 2 * * *"  # 每天凌晨2点
+  retention_days: 30
+  backup_dir: "backups"
+
+# 部署相关
+deployment:
+  # 环境标识
+  environment: "production"
+  
+  # 版本信息
+  version: "0.1.0"
+  
+  # 启动时间
+  startup_time: null  # 自动设置

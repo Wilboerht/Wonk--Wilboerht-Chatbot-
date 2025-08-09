@@ -1,0 +1,20 @@
+app:
+  name: Wonk Chatbot
+  env: dev
+  host: 127.0.0.1
+  port: 8000
+retrieval:
+  use_semantic: true
+  top_k: 10
+  fuse_alpha: 0.7
+  confidence_threshold:
+    high: 0.45
+    low: 0.25
+storage:
+  db_path: data/database.db
+  vector_index_dir: data/vectors
+models:
+  sentence_transformer: intfloat/multilingual-e5-small
+  batch_size: 32
+logging:
+  level: INFO

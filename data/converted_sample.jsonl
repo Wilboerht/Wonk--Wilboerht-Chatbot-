@@ -1,0 +1,5 @@
+{"question": "什么是人工智能？", "answer": "人工智能（AI）是计算机科学的一个分支，致力于创建能够执行通常需要人类智能的任务的系统。", "language": "zh", "source": "sample", "tags": ["AI;技术"]}
+{"question": "What is machine learning?", "answer": "Machine learning is a subset of artificial intelligence that enables computers to learn and improve from experience without being explicitly programmed.", "language": "en", "source": "sample", "tags": ["AI;ML;技术"]}
+{"question": "如何学习编程？", "answer": "学习编程建议从基础语法开始，多练习项目，参与开源社区，持续学习新技术。", "language": "zh", "source": "sample", "tags": ["编程;学习"]}
+{"question": "Python有什么优势？", "answer": "Python语法简洁易读，拥有丰富的第三方库，适合数据科学、Web开发、自动化等多个领域。", "language": "zh", "source": "sample", "tags": ["Python;编程"]}
+{"question": "什么是云计算？", "answer": "云计算是通过互联网提供计算服务，包括服务器、存储、数据库、网络、软件等资源。", "language": "zh", "source": "sample", "tags": ["云计算;技术"]}
