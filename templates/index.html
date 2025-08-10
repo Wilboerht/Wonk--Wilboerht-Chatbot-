@@ -3,63 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wonk - Wilboerht Chatbot</title>
+    <title>Wonk</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
-        <!-- 侧边栏 -->
-        <div class="sidebar">
-            <div class="sidebar-header">
+    <div class="app">
+        <!-- 顶部导航 -->
+        <header class="header">
+            <div class="header-content">
                 <div class="logo">
-                    <i class="fas fa-robot"></i>
-                    <span>Wonk</span>
+                    <span class="logo-text">Wonk</span>
                 </div>
-                <button class="new-chat-btn" onclick="startNewChat()">
-                    <i class="fas fa-plus"></i>
-                    新对话
-                </button>
+                <nav class="nav">
+                    <button type="button" class="nav-btn" onclick="startNewChat()" title="新对话">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </button>
+                </nav>
             </div>
-            
-            <div class="chat-history">
-                <div class="history-item active">
-                    <i class="fas fa-message"></i>
-                    <span>当前对话</span>
+        </header>
+
+        <!-- 主内容区域 -->
+        <main class="main">
+            <!-- 聊天容器 -->
+            <div class="chat-wrapper">
+                <div class="chat-container" id="chatContainer">
+                    <!-- 欢迎界面 -->
+                    <div class="welcome-screen">
+                        <div class="welcome-content">
+                            <div class="welcome-logo">
+                                <span class="welcome-logo-text">Wonk</span>
+                            </div>
+                            <h1 class="welcome-title">你好，我是 Wonk</h1>
+                            <p class="welcome-subtitle">我可以帮你解答问题、协助思考，让我们开始对话吧</p>
+
+                            <!-- 快速开始建议 -->
+                            <div class="quick-start">
+                                <div class="quick-item" onclick="sendQuickMessage('你好，介绍一下自己')">
+                                    <span class="quick-icon">👋</span>
+                                    <span class="quick-text">打个招呼</span>
+                                </div>
+                                <div class="quick-item" onclick="sendQuickMessage('你能帮我做什么？')">
+                                    <span class="quick-icon">❓</span>
+                                    <span class="quick-text">了解功能</span>
+                                </div>
+                                <div class="quick-item" onclick="sendQuickMessage('帮我写一首诗')">
+                                    <span class="quick-icon">✍️</span>
+                                    <span class="quick-text">创意写作</span>
+                                </div>
+                                <div class="quick-item" onclick="sendQuickMessage('解释一下人工智能')">
+                                    <span class="quick-icon">🤖</span>
+                                    <span class="quick-text">知识问答</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <i class="fas fa-user"></i>
-                    <span>用户</span>
-                </div>
-            </div>
-        </div>
 
-        <!-- 主聊天区域 -->
-        <div class="main-content">
-            <div class="chat-header">
-                <h1>隆重推出 Wonk</h1>
-                <p>Wonk 聊天机器人现已全力登场，感兴趣，感兴趣的朋友，内容研发专力量——您需要关注的现代化对话体验。</p>
-            </div>
-
-            <div class="chat-container" id="chatContainer">
-                <!-- 聊天消息将在这里显示 -->
-            </div>
-
-            <div class="input-container">
+            <!-- 输入区域 -->
+            <div class="input-section">
                 <div class="input-wrapper">
-                    <input type="text" id="messageInput" placeholder="询问任何问题..." />
-                    <button class="voice-btn" onclick="toggleVoice()" title="语音输入" aria-label="语音输入">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <button class="send-btn" onclick="sendMessage()" title="发送消息" aria-label="发送消息">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+                    <div class="input-container">
+                        <textarea
+                            id="messageInput"
+                            class="message-input"
+                            placeholder="输入消息，按 Enter 发送"
+                            rows="1"
+                            autocomplete="off"
+                        ></textarea>
+                        <button
+                            type="button"
+                            id="sendButton"
+                            class="send-button"
+                            onclick="sendMessage()"
+                            title="发送消息"
+                            aria-label="发送消息"
+                            disabled
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13"/>
+                                <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="input-footer">
+                        <span class="input-hint">Wonk 可能会出错，请核实重要信息</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>

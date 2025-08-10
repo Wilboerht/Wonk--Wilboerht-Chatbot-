@@ -2,6 +2,7 @@ class ChatApp {
     constructor() {
         this.chatContainer = document.getElementById('chatContainer');
         this.messageInput = document.getElementById('messageInput');
+        this.sendButton = document.getElementById('sendButton');
         this.isTyping = false;
         this.currentSessionId = null;
         this.sessions = [];
@@ -10,18 +11,80 @@ class ChatApp {
 
     init() {
         // 绑定事件监听器
-        this.messageInput.addEventListener('keypress', (e) => {
+        this.messageInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 this.sendMessage();
             }
         });
 
+        // 监听输入变化以控制发送按钮状态和自动调整高度
+        this.messageInput.addEventListener('input', () => {
+            this.updateSendButton();
+            this.autoResizeTextarea();
+        });
+
         // 自动聚焦输入框
         this.messageInput.focus();
 
+        // 初始化发送按钮状态
+        this.updateSendButton();
+
         // 加载会话列表
         this.loadSessions();
+    }
+
+    updateSendButton() {
+        const hasText = this.messageInput.value.trim().length > 0;
+        this.sendButton.disabled = !hasText || this.isTyping;
+    }
+
+    clearWelcomeMessage() {
+        const welcomeScreen = this.chatContainer.querySelector('.welcome-screen');
+        if (welcomeScreen) {
+            welcomeScreen.remove();
+        }
+    }
+
+    addWelcomeScreen() {
+        const welcomeHTML = `
+            <div class="welcome-screen">
+                <div class="welcome-content">
+                    <div class="welcome-logo">
+                        <span class="welcome-logo-text">Wonk</span>
+                    </div>
+                    <h1 class="welcome-title">你好，我是 Wonk</h1>
+                    <p class="welcome-subtitle">我可以帮你解答问题、协助思考，让我们开始对话吧</p>
+
+                    <!-- 快速开始建议 -->
+                    <div class="quick-start">
+                        <div class="quick-item" onclick="sendQuickMessage('你好，介绍一下自己')">
+                            <span class="quick-icon">👋</span>
+                            <span class="quick-text">打个招呼</span>
+                        </div>
+                        <div class="quick-item" onclick="sendQuickMessage('你能帮我做什么？')">
+                            <span class="quick-icon">❓</span>
+                            <span class="quick-text">了解功能</span>
+                        </div>
+                        <div class="quick-item" onclick="sendQuickMessage('帮我写一首诗')">
+                            <span class="quick-icon">✍️</span>
+                            <span class="quick-text">创意写作</span>
+                        </div>
+                        <div class="quick-item" onclick="sendQuickMessage('解释一下人工智能')">
+                            <span class="quick-icon">🤖</span>
+                            <span class="quick-text">知识问答</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        this.chatContainer.innerHTML = welcomeHTML;
+    }
+
+    // 自动调整textarea高度
+    autoResizeTextarea() {
+        this.messageInput.style.height = 'auto';
+        this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 120) + 'px';
     }
 
     async sendMessage() {
@@ -73,52 +136,66 @@ class ChatApp {
     }
 
     addMessage(content, type) {
+        // 清除欢迎消息
+        this.clearWelcomeMessage();
+
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}`;
 
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        avatar.innerHTML = type === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+        avatar.textContent = type === 'user' ? '你' : 'W';
 
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
-        messageContent.textContent = content;
+
+        const messageBubble = document.createElement('div');
+        messageBubble.className = 'message-bubble';
+        messageBubble.textContent = content;
+
+        messageContent.appendChild(messageBubble);
 
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(messageContent);
 
         this.chatContainer.appendChild(messageDiv);
         this.scrollToBottom();
+
+        // 更新发送按钮状态
+        this.updateSendButton();
     }
 
     showTypingIndicator() {
         this.isTyping = true;
+        this.updateSendButton();
+
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message bot';
         typingDiv.id = 'typing-indicator';
 
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        avatar.innerHTML = '<i class="fas fa-robot"></i>';
+        avatar.textContent = 'W';
 
-        const typingContent = document.createElement('div');
-        typingContent.className = 'typing-indicator';
-        typingContent.innerHTML = `
-            <div class="typing-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        `;
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
 
+        const messageBubble = document.createElement('div');
+        messageBubble.className = 'message-bubble';
+        messageBubble.textContent = '正在输入...';
+
+        messageContent.appendChild(messageBubble);
         typingDiv.appendChild(avatar);
-        typingDiv.appendChild(typingContent);
+        typingDiv.appendChild(messageContent);
+
         this.chatContainer.appendChild(typingDiv);
         this.scrollToBottom();
     }
 
     hideTypingIndicator() {
         this.isTyping = false;
+        this.updateSendButton();
+
         const typingIndicator = document.getElementById('typing-indicator');
         if (typingIndicator) {
             typingIndicator.remove();
@@ -136,20 +213,17 @@ class ChatApp {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                }
+                },
+                body: JSON.stringify({})
             });
 
             const data = await response.json();
             if (data.success) {
                 this.currentSessionId = data.session_id;
                 this.chatContainer.innerHTML = '';
+                this.addWelcomeScreen();
                 this.messageInput.focus();
                 this.loadSessions();
-
-                // 添加欢迎消息
-                setTimeout(() => {
-                    this.addMessage('你好！我是 Wonk，你的智能助手。有什么我可以帮助你的吗？', 'bot');
-                }, 500);
             }
         } catch (error) {
             console.error('Error creating new chat:', error);
@@ -263,12 +337,15 @@ function toggleVoice() {
 // 初始化应用
 const chatApp = new ChatApp();
 
+// 快速开始功能
+function sendQuickMessage(message) {
+    const messageInput = document.getElementById('messageInput');
+    messageInput.value = message;
+    chatApp.updateSendButton();
+    chatApp.sendMessage();
+}
+
 // 页面加载完成后的初始化
 document.addEventListener('DOMContentLoaded', function() {
-    // 如果没有当前会话，显示欢迎消息
-    setTimeout(() => {
-        if (!chatApp.currentSessionId) {
-            chatApp.addMessage('你好！我是 Wonk，你的智能助手。有什么我可以帮助你的吗？', 'bot');
-        }
-    }, 1000);
+    // 保持界面简洁，不自动添加欢迎消息
 });
