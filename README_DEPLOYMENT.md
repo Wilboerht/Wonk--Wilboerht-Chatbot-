@@ -1,198 +1,229 @@
 # Wonk Chatbot 部署指南
 
-## 🚀 快速开始（推荐）
+## 🚀 快速开始
 
-### 1. 一键环境配置
-```powershell
-# 在项目根目录运行
-powershell -ExecutionPolicy Bypass -File setup_basic.ps1
+### 本地开发部署
+
+#### 1. 环境准备
+```bash
+# 克隆项目
+git clone https://github.com/Wilboerht/Wonk--Wilboerht-Chatbot-.git
+cd Wonk--Wilboerht-Chatbot-
+
+# 创建虚拟环境
+python -m venv venv
+
+# 激活虚拟环境
+# Linux/Mac:
+source venv/bin/activate
+# Windows:
+venv\Scripts\activate
 ```
 
-### 2. 启动服务
-```batch
-# 开发模式（默认）
-.\run.bat
-
-# 生产模式
-.\run.bat --prod
-
-# 自定义端口
-.\run.bat --port 8080
+#### 2. 安装依赖
+```bash
+pip install -r requirements.txt
 ```
 
-### 3. 访问服务
-- 主页：http://127.0.0.1:8000
-- API文档：http://127.0.0.1:8000/docs
-- 健康检查：http://127.0.0.1:8000/health
-
-## 📋 可用脚本
-
-| 脚本 | 功能 | 使用场景 |
-|------|------|----------|
-| `setup_basic.ps1` | 环境配置 | 首次安装或重置环境 |
-| `run.bat` | 启动服务 | 日常启动服务 |
-| `stop.bat` | 停止服务 | 停止运行中的服务 |
-| `status_simple.bat` | 状态检查 | 检查环境和服务状态 |
-
-## 🔧 详细配置
-
-### 环境配置脚本参数
-```powershell
-# 基本安装
-powershell -ExecutionPolicy Bypass -File setup_basic.ps1
-
-# 强制重新创建虚拟环境
-powershell -ExecutionPolicy Bypass -File setup_basic.ps1 -Force
-
-# 跳过依赖安装（仅创建环境）
-powershell -ExecutionPolicy Bypass -File setup_basic.ps1 -SkipDeps
+#### 3. 启动服务
+```bash
+python app.py
 ```
 
-### 启动脚本参数
-```batch
-# 显示帮助
-.\run.bat --help
+#### 4. 访问服务
+- 主页：http://localhost:5000
+- 聊天界面：http://localhost:5000
 
-# 开发模式（热重载）
-.\run.bat --dev
+## 🌐 云服务器部署
 
-# 生产模式（无热重载）
-.\run.bat --prod
+### 完整部署指南
+详见 [服务器完整配置记录.md](服务器完整配置记录.md)
 
-# 指定主机和端口
-.\run.bat --host 0.0.0.0 --port 8080
+### 快速部署步骤
+1. **连接服务器**
+   ```bash
+   ssh root@your-server-ip
+   ```
+
+2. **下载项目**
+   ```bash
+   cd /tmp
+   yum install -y git
+   git clone https://github.com/Wilboerht/Wonk--Wilboerht-Chatbot-.git
+   ```
+
+3. **执行部署脚本**
+   ```bash
+   cd Wonk--Wilboerht-Chatbot-/deploy
+   chmod +x *.sh
+   ./server_setup_alinux.sh    # 配置环境
+   ./deploy_app.sh             # 部署应用
+   ./setup_nginx.sh            # 配置Nginx
+   ```
+
+4. **配置SSL证书**
+   ```bash
+   yum install -y certbot python3-certbot-nginx
+   certbot --nginx -d your-domain.com
+   ```
+
+## 🔧 配置说明
+
+### 应用配置
+- **主应用**: `app.py` (Flask)
+- **端口**: 5000 (内部), 80/443 (外部)
+- **数据库**: SQLite (`data/database.db`)
+- **日志**: systemd journal
+
+### 环境变量
+```bash
+# 生产环境
+export FLASK_ENV=production
+export PYTHONUNBUFFERED=1
 ```
 
 ## 🔐 安全配置
 
-### 1. 修改管理员Token
-编辑 `.env` 文件：
-```env
-WONK_ADMIN_TOKEN=your-secure-token-here
-```
-
-### 2. 受保护的接口
-以下接口需要管理员Token：
-- `GET /api/config` - 查看配置
-- `PUT /api/config` - 修改配置
-- `POST /api/ingest` - 导入数据
-- `POST /api/rebuild_index` - 重建索引
-
-### 3. 使用Token访问API
+### 生产环境安全
 ```bash
-curl -H "Authorization: Bearer your-secure-token-here" \
-  http://127.0.0.1:8000/api/config
+# 修改Flask密钥
+# 编辑 app.py 中的 secret_key
+
+# 配置防火墙
+firewall-cmd --permanent --add-service=http
+firewall-cmd --permanent --add-service=https
+firewall-cmd --permanent --add-port=5000/tcp
+firewall-cmd --reload
+
+# SSL证书配置
+certbot --nginx -d your-domain.com
 ```
 
-## 📊 数据导入
+## 📊 数据管理
 
-### CSV/Excel 转换工具
+### 数据库备份
 ```bash
-# 预览数据
-.venv\Scripts\python scripts\convert_data.py data\your_file.csv --preview
+# 备份数据库
+cp /opt/wonk-chatbot/data/database.db /opt/wonk-chatbot/data/database_backup_$(date +%Y%m%d).db
 
-# 转换为JSONL
-.venv\Scripts\python scripts\convert_data.py data\your_file.csv -o output.jsonl
-
-# 直接导入数据库
-.venv\Scripts\python scripts\convert_data.py data\your_file.xlsx
+# 定期备份（添加到crontab）
+echo "0 2 * * * cp /opt/wonk-chatbot/data/database.db /opt/wonk-chatbot/data/database_backup_\$(date +\%Y\%m\%d).db" | crontab -
 ```
-
-### 数据格式要求
-- **必需列**：question, answer
-- **可选列**：language, tags, source
 
 ## 🔍 状态检查
 
-运行状态检查脚本：
-```batch
-.\status_simple.bat
+### 本地开发
+```bash
+# 检查Python版本
+python --version
+
+# 检查虚拟环境
+which python  # Linux/Mac
+where python   # Windows
+
+# 检查依赖
+pip list
 ```
 
-检查内容：
-- ✅ 虚拟环境状态
-- ✅ Python依赖安装
-- ✅ 配置文件存在
-- ✅ 端口占用情况
-- ✅ 服务健康状态
+### 服务器部署
+```bash
+# 检查服务状态
+systemctl status wonk-chatbot
+
+# 检查端口监听
+ss -tlnp | grep 5000
+
+# 检查日志
+journalctl -u wonk-chatbot -n 20
+```
 
 ## 🛠️ 故障排除
 
 ### 常见问题
 
-1. **Python版本问题**
-   ```
-   ERROR: Python 3.8+ not found
-   ```
-   - 安装Python 3.8+并添加到PATH
+1. **服务无法启动**
+   ```bash
+   # 查看详细错误
+   journalctl -u wonk-chatbot -f
 
-2. **权限问题**
+   # 手动测试
+   cd /opt/wonk-chatbot
+   source venv/bin/activate
+   python app.py
    ```
-   ExecutionPolicy限制
-   ```
-   - 使用 `-ExecutionPolicy Bypass` 参数
 
-3. **端口占用**
-   ```
-   Port 8000 already in use
-   ```
-   - 运行 `.\stop.bat` 或使用其他端口
+2. **端口访问问题**
+   ```bash
+   # 检查防火墙
+   firewall-cmd --list-ports
 
-4. **依赖安装失败**
+   # 开放端口
+   firewall-cmd --permanent --add-port=5000/tcp
+   firewall-cmd --reload
    ```
-   pip install失败
+
+3. **SSL证书问题**
+   ```bash
+   # 检查证书状态
+   certbot certificates
+
+   # 手动续期
+   certbot renew
    ```
-   - 手动运行：`.venv\Scripts\pip install -r requirements.txt`
-
-### 重置环境
-```powershell
-# 删除虚拟环境
-Remove-Item .venv -Recurse -Force
-
-# 重新配置
-powershell -ExecutionPolicy Bypass -File setup_basic.ps1 -Force
-```
 
 ## 🌐 生产部署
 
-### 1. 安全检查清单
-- [ ] 修改默认管理员Token
-- [ ] 配置CORS允许的来源
-- [ ] 使用HTTPS（配置反向代理）
+### 安全检查清单
+- [ ] 修改Flask应用密钥
+- [ ] 配置HTTPS和SSL证书
 - [ ] 设置防火墙规则
+- [ ] 定期备份数据库
 
-### 2. 性能优化
-- [ ] 使用生产模式启动：`.\run.bat --prod`
-- [ ] 配置适当的日志级别
-- [ ] 定期备份数据库文件
-
-### 3. 监控建议
-- [ ] 定期运行状态检查
-- [ ] 监控系统资源使用
+### 性能优化
+- [ ] 使用生产模式 (`FLASK_ENV=production`)
+- [ ] 配置Nginx反向代理
 - [ ] 设置日志轮转
+- [ ] 监控系统资源
+
+### 监控建议
+- [ ] 定期检查服务状态
+- [ ] 监控磁盘空间使用
+- [ ] 设置SSL证书自动续期
 
 ## 📚 相关文档
 
-- [数据转换工具使用指南](docs/数据转换工具使用指南.md)
-- [鉴权使用示例](docs/鉴权使用示例.md)
-- [Windows部署指南](docs/Windows部署指南.md)
-- [运行与维护](docs/运行与维护.md)
+- [服务器完整配置记录](服务器完整配置记录.md) - 详细部署指南
+- [云服务器部署指南](云服务器部署指南.md) - 快速部署说明
+- [使用指南](使用指南.md) - 功能使用说明
 
 ## 🆘 获取帮助
 
 如果遇到问题：
-1. 查看控制台错误信息
-2. 运行 `.\status_simple.bat` 检查环境
+1. 查看应用日志：`journalctl -u wonk-chatbot -f`
+2. 检查服务状态：`systemctl status wonk-chatbot`
 3. 查看相关文档
-4. 收集错误信息和系统环境信息
+4. 在GitHub提交Issue
+
+## 📞 联系方式
+
+- 项目地址: https://github.com/Wilboerht/Wonk--Wilboerht-Chatbot-
+- 在线体验: https://chatbot.wilboerht.cn
 
 ---
 
 **快速命令参考：**
-```batch
-# 完整工作流程
-powershell -ExecutionPolicy Bypass -File setup_basic.ps1  # 配置环境
-.\run.bat                                                  # 启动服务
-.\status_simple.bat                                        # 检查状态
-.\stop.bat                                                 # 停止服务
+
+本地开发：
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+pip install -r requirements.txt
+python app.py
+```
+
+服务器部署：
+```bash
+systemctl status wonk-chatbot    # 查看状态
+systemctl restart wonk-chatbot   # 重启服务
+journalctl -u wonk-chatbot -f    # 查看日志
 ```
